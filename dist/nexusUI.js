@@ -18,22 +18,26 @@ window.nx = extend(window.nx,mathUtils)
 /* this onload function turns canvases into nexus elements,
  * using the canvas's id as its var name */
 
+window.nx.init = function(){
+	nx.addStylesheet();
+
+	// get all canvases on the page and add them to the manager
+	var allcanvi = document.getElementsByTagName("canvas");
+	for (i=0;i<allcanvi.length;i++) nx.transform(allcanvi[i]);
+
+	if (nx.isTouchDevice) {
+		document.addEventListener("touchmove", nx.blockMove, true);
+		document.addEventListener("touchstart", nx.blockMove, true);
+	}
+
+	nx.onload();
+
+	nx.startPulse();
+}
+
 window.onload = function() {
 
-  nx.addStylesheet();
-
-  // get all canvases on the page and add them to the manager
-  var allcanvi = document.getElementsByTagName("canvas");
-  for (i=0;i<allcanvi.length;i++) nx.transform(allcanvi[i]);
-
-  if (nx.isTouchDevice) {
-    document.addEventListener("touchmove", nx.blockMove, true);
-    document.addEventListener("touchstart", nx.blockMove, true);
-  }
-  
-  nx.onload();
-
-  nx.startPulse();
+  window.nx.init();
   
 };
 },{"./lib/core/manager":2,"./lib/utils/dom":4,"./lib/utils/drawing":5,"./lib/utils/math":6,"extend":45}],2:[function(require,module,exports){
@@ -124,7 +128,7 @@ manager.prototype.add = function(type, args) {
 
   if(type) {
       var canv = document.createElement("canvas");
-      canv.setAttribute('nx', type);
+      canv.setAttribute('data-nx', type);
       if (args) {
         if (args.x || args.y) {
            canv.style.position = "absolute";
@@ -1919,7 +1923,6 @@ dial.prototype.init = function() {
 	
 	if (this.mindim<101) {
 		this.handleLength--;
-	//	this.handleLength--;
 	}
 
 	if (this.mindim<101 || this.mindim<101) {
@@ -6688,6 +6691,8 @@ exports.debuglog = function(set) {
  * Echos the value of a value. Trys to print the value out
  * in the best way possible given the different types.
  *
+ * @param {Object} obj The object to print out.
+ * @param {Object} opts Optional options object that alters the output.
  */
 /* legacy: obj, showHidden, depth, colors*/
 function inspect(obj, opts) {
@@ -7122,6 +7127,19 @@ exports.log = function() {
 };
 
 
+/**
+ * Inherit the prototype methods from one constructor into another.
+ *
+ * The Function.prototype.inherits from lang.js rewritten as a standalone
+ * function (not on Function.prototype). NOTE: If this file is to be loaded
+ * during bootstrapping this function needs to be rewritten using some native
+ * functions as prototype setup using normal JavaScript does not work as
+ * expected during bootstrapping (see mirror.js in r114903).
+ *
+ * @param {function} ctor Constructor function which needs to inherit the
+ *     prototype.
+ * @param {function} superCtor Constructor function to inherit prototype from.
+ */
 exports.inherits = require('inherits');
 
 exports._extend = function(origin, add) {
@@ -7143,12 +7161,20 @@ function hasOwnProperty(obj, prop) {
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./support/isBuffer":43,"_process":42,"inherits":41}],45:[function(require,module,exports){
 var hasOwn = Object.prototype.hasOwnProperty;
-var toString = Object.prototype.toString;
+var toStr = Object.prototype.toString;
 var undefined;
+
+var isArray = function isArray(arr) {
+	if (typeof Array.isArray === 'function') {
+		return Array.isArray(arr);
+	}
+
+	return toStr.call(arr) === '[object Array]';
+};
 
 var isPlainObject = function isPlainObject(obj) {
 	'use strict';
-	if (!obj || toString.call(obj) !== '[object Object]') {
+	if (!obj || toStr.call(obj) !== '[object Object]') {
 		return false;
 	}
 
@@ -7200,10 +7226,10 @@ module.exports = function extend() {
 				}
 
 				// Recurse if we're merging plain objects or arrays
-				if (deep && copy && (isPlainObject(copy) || (copyIsArray = Array.isArray(copy)))) {
+				if (deep && copy && (isPlainObject(copy) || (copyIsArray = isArray(copy)))) {
 					if (copyIsArray) {
 						copyIsArray = false;
-						clone = src && Array.isArray(src) ? src : [];
+						clone = src && isArray(src) ? src : [];
 					} else {
 						clone = src && isPlainObject(src) ? src : {};
 					}
