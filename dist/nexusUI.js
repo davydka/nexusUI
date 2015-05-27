@@ -327,32 +327,7 @@ manager.prototype.removeAni = function(fn) {
 }
   
 manager.prototype.addStylesheet = function() {
-  var htmlstr = '<style>'
-    + 'select {'
-    + 'width: 150px;'
-    + 'padding: 5px 5px;'
-    + 'font-size: 16px;'
-    + 'color:#666666;'
-    + 'border: solid 0px #CCC;'
-    + 'border-radius: 5;'
-    + 'outline: black;'
-    + 'cursor:pointer;'
-    + 'background-color:#EEE;'
-    + 'font-family:gill sans;'
-    + '}'
-    + ''
-    + 'canvas { '
-    + 'cursor:pointer;'
-    + 'border-radius:5px;'
-    + 'moz-border-radius:5px;'
-    + 'webkit-border-radius:5px;'
-    + 'box-sizing:border-box;'
-    + '-moz-box-sizing:border-box;'
-    + '-webkit-box-sizing:border-box;'
-    + '}'
-    + '</style>';
 
-  document.head.innerHTML = document.head.innerHTML + htmlstr
 }
 
 /**  @method setViewport
